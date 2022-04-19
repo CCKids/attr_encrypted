@@ -427,7 +427,7 @@ module AttrEncrypted
 
       def generate_iv(algorithm)
         algo = OpenSSL::Cipher.new(algorithm)
-        algo.attr_encrypt
+        algo.encrypt
         algo.random_iv
       end
 
