@@ -164,7 +164,7 @@ module AttrEncrypted
       end
 
       define_method("#{attribute}=") do |value|
-        send("#{encrypted_attribute_name}=", encrypt(attribute, value))
+        send("#{encrypted_attribute_name}=", attr_encrypt(attribute, value))
         instance_variable_set("@#{attribute}", value)
       end
 
@@ -261,7 +261,7 @@ module AttrEncrypted
   #   end
   #
   #   encrypted_email = User.encrypt(:email, 'test@example.com')
-  def encrypt(attribute, value, options = {})
+  def attr_encrypt(attribute, value, options = {})
     options = attr_encrypted_attributes[attribute.to_sym].merge(options)
     if options[:if] && !options[:unless] && (options[:allow_empty_value] || not_empty?(value))
       value = options[:marshal] ? options[:marshaler].send(options[:dump_method], value) : value.to_s
@@ -346,10 +346,10 @@ module AttrEncrypted
     #
     #  @user = User.new('some-secret-key')
     #  @user.encrypt(:email, 'test@example.com')
-    def encrypt(attribute, value)
+    def attr_encrypt(attribute, value)
       attr_encrypted_attributes[attribute.to_sym][:operation] = :encrypting
       attr_encrypted_attributes[attribute.to_sym][:value_present] = self.class.not_empty?(value)
-      self.class.encrypt(attribute, value, evaluated_attr_encrypted_options_for(attribute))
+      self.class.attr_encrypt(attribute, value, evaluated_attr_encrypted_options_for(attribute))
     end
 
     # Copies the class level hash of encrypted attributes with virtual attribute names as keys
@@ -427,7 +427,7 @@ module AttrEncrypted
 
       def generate_iv(algorithm)
         algo = OpenSSL::Cipher.new(algorithm)
-        algo.encrypt
+        algo.attr_encrypt
         algo.random_iv
       end
 
